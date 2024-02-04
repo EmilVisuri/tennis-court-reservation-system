@@ -19,5 +19,4 @@ Tenniskenttien varausjärjestelmä, jossa asiakkaat voivat selailla eri vuoroja,
 Tällä hetkellä sovelluksessa voi tarkastella aukioloaikoja ja hinnastoa. Voit myös luoda tunnuksen ja kirjautua sisään. Tietokannassa on tällä hetkellä kaksi asiakasta (sposti: paavo.korhonen@gmail.com, salasana: paavo ja sposti: michael.jackson@gmail.com, salasana: michael) valmiina, joilla voi kokeilla sisäänkirjautumista. Sisäänkirjautuneena näet "omat tiedot" napista omat tietosi. "Omat tiedot" kohdasta voi myös kirjautua ulos.
 Tulevia ominaisuuksia on ainakin omien tietojen muokkaus, kentän varaaminen, sekä tulevien että menneiden varauksien tarkastelu.
 
-
-https://web-ohjelmointi-projekti.fly.dev
+Yritin saada ohjelman myös fli.ioon, mutta en saanut sitä ainakaan itse toimimaan:  https://web-ohjelmointi-projekti.fly.dev

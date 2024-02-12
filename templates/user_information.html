@@ -1,0 +1,31 @@
+{% extends 'index.html' %}
+{% block welcome_message %}
+{% endblock %}
+{% block content %}
+
+<div>
+    <h2>Käyttäjän tiedot</h2>
+    <p>Etunimi: {{ user.first_name }}</p>
+    <p>Sukunimi: {{ user.last_name }}</p>
+    <p>Sähköposti: {{ user.email }}</p>
+    <p>Puhelinnumero: {{ user.phone_number }}</p>
+</div>
+
+<div>
+    <h2>Varaukset</h2>
+    {% if user.reservations %}
+        <ul>
+            {% for reservation in user.reservations %}
+                <li>{{ reservation.start_time }} - {{ reservation.end_time }}: Kenttä {{ reservation.court_id }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Ei varauksia</p>
+    {% endif %}
+</div>
+
+<form action="/logout" method="GET">
+    <input type="submit" value="Kirjaudu ulos">
+</form>
+
+{% endblock %}

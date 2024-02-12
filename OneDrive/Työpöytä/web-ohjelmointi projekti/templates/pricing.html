@@ -1,0 +1,62 @@
+{% extends 'index.html' %}
+{% block welcome_message %}
+{% endblock %}
+{% block content %}
+
+<style>
+    table {
+      margin: 40px auto;
+      width: calc(100% - 80px);
+      border-collapse: collapse;
+    }
+  
+    table td {
+      width: 33.33%;
+      padding: 5px;
+      text-align: center;
+    }
+</style>
+
+<p style="font-size: 35px; font-weight: bold; margin: 40px auto">Hinnasto ja aukioloajat</p>
+
+<table border="1">
+    <tr>
+        <td style="font-size: 20px; font-weight: bold;">Ma-Pe</td>
+        <td style="font-size: 20px; font-weight: bold;">Hinta</td>
+        <td style="font-size: 20px; font-weight: bold;">Alennusryhmät*</td>
+    </tr>
+    <tr>
+        <td style="font-size: 20px;">09-15</td>
+        <td style="font-size: 20px;">15€</td>
+        <td>10</td>
+    </tr>
+    <tr>
+        <td style="font-size: 20px;">15-20</td>
+        <td style="font-size: 20px;">20€</td>
+        <td style="font-size: 20px;">15€</td>
+    </tr>
+    <tr>
+        <td style="font-size: 20px;">20-22</td>
+        <td style="font-size: 20px;">15€</td>
+        <td style="font-size: 20px;">10€</td>
+    </tr>
+    <tr>
+        <td style="font-size: 20px; font-weight: bold;">La-Su</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td style="font-size: 20px;">16-20</td>
+        <td style="font-size: 20px;">30€</td>
+        <td style="font-size: 20px;">25€</td>
+    </tr>
+    <tr>
+        <td style="font-size: 20px;">20-22</td>
+        <td style="font-size: 20px;">20€</td>
+        <td style="font-size: 20px;">15€</td>
+    </tr>
+</table>
+
+<p style="font-size: 30px; margin-left: 36px;">Alennusryhmät*: Alennusryhmiin kuuluvat eläkeläiset ja opiskelijat.</p>
+
+{% endblock %}

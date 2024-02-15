@@ -3,29 +3,36 @@
 {% endblock %}
 {% block content %}
 
-<div>
+<div style="text-align: center;">
     <h2>Käyttäjän tiedot</h2>
-    <p>Etunimi: {{ user.first_name }}</p>
-    <p>Sukunimi: {{ user.last_name }}</p>
-    <p>Sähköposti: {{ user.email }}</p>
-    <p>Puhelinnumero: {{ user.phone_number }}</p>
+    <p style="font-size: 1.2em;">Etunimi: {{ user.first_name }}</p>
+    <p style="font-size: 1.2em;">Sukunimi: {{ user.last_name }}</p>
+    <p style="font-size: 1.2em;">Sähköposti: {{ user.email }}</p>
+    <p style="font-size: 1.2em;">Puhelinnumero: {{ user.phone_number }}</p>
 </div>
 
-<div>
+<form style="text-align: center; margin-bottom: 10px;" action="/edit_customer_info" method="GET">
+    <input type="submit" value="Muokkaa tietoja">
+</form>
+
+<form style="text-align: center;" action="/logout" method="GET">
+    <input type="submit" value="Kirjaudu ulos">
+</form>
+
+<div style="text-align: center;">
     <h2>Varaukset</h2>
-    {% if user.reservations %}
-        <ul>
-            {% for reservation in user.reservations %}
-                <li>{{ reservation.start_time }} - {{ reservation.end_time }}: Kenttä {{ reservation.court_id }}</li>
+    {% if reservations %}
+        <ul style="list-style-type: none; padding-left: 0;">
+            {% for reservation in reservations %}
+                <li style="font-size: 1.2em;">{{ reservation.date }} - {{ reservation.reservation_time }}: {{ reservation.court_name }}</li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>Ei varauksia</p>
+        <p style="font-size: 1.2em;">Ei varauksia</p>
     {% endif %}
+    <form style="text-align: center; margin-bottom: 10px;" action="/delete_reservation" method="GET">
+        <input type="submit" value="Poista varauksia">
+    </form>
 </div>
-
-<form action="/logout" method="GET">
-    <input type="submit" value="Kirjaudu ulos">
-</form>
 
 {% endblock %}

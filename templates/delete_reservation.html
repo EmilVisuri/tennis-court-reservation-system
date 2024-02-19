@@ -6,12 +6,12 @@
 <body style="text-align: center;">
     <h1>Valitse poistettava varaus:</h1>
     
-    <form action="/deleted_reservation" method="POST"> <!-- Muutettu reitti -->
+    <form action="/deleted_reservation" method="POST">
         <label for="reservation">Valitse varaus:</label>
         <select name="reservation" id="reservation">
             {% if reservations %}
                 {% for reservation in reservations %}
-                    <option value="{{ reservation.id }}">{{ reservation.date }} - {{ reservation.reservation_time }}: {{ reservation.court_name }}</option>
+                    <option value="{{ reservation[0] }}">{{ reservation[2] }} - {{ reservation[3] }}: {{ reservation[1] }}</option>
                 {% endfor %}
             {% else %}
                 <option disabled>Ei varauksia</option>

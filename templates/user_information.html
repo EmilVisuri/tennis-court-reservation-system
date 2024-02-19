@@ -5,10 +5,10 @@
 
 <div style="text-align: center;">
     <h2>Käyttäjän tiedot</h2>
-    <p style="font-size: 1.2em;">Etunimi: {{ user.first_name }}</p>
-    <p style="font-size: 1.2em;">Sukunimi: {{ user.last_name }}</p>
-    <p style="font-size: 1.2em;">Sähköposti: {{ user.email }}</p>
-    <p style="font-size: 1.2em;">Puhelinnumero: {{ user.phone_number }}</p>
+    <p style="font-size: 1.2em;">Etunimi: {{ user[1] }}</p>
+    <p style="font-size: 1.2em;">Sukunimi: {{ user[2] }}</p>
+    <p style="font-size: 1.2em;">Sähköposti: {{ user[4] }}</p>
+    <p style="font-size: 1.2em;">Puhelinnumero: {{ user[5] }}</p>
 </div>
 
 <form style="text-align: center; margin-bottom: 10px;" action="/edit_customer_info" method="GET">
@@ -24,7 +24,7 @@
     {% if reservations %}
         <ul style="list-style-type: none; padding-left: 0;">
             {% for reservation in reservations %}
-                <li style="font-size: 1.2em;">{{ reservation.date }} - {{ reservation.reservation_time }}: {{ reservation.court_name }}</li>
+                <li style="font-size: 1.2em;">{{ reservation[2] }} - {{ reservation[3] }}: {{ reservation[1] }}</li>
             {% endfor %}
         </ul>
     {% else %}

@@ -1,74 +1,42 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timedelta
+import psycopg2
+from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres@localhost:5432/tennis_reservation_system'
-app.config['SECRET_KEY'] = 'salainen_avain_123'
-db = SQLAlchemy(app)
+app.secret_key = 'salainen_avain_123'
 
+def db_connection():
+    return psycopg2.connect(
+        host="localhost",
+        database="tennis_reservation_system",
+        user="postgres",
+        password="your_password"
+    )
 
-class Customer(db.Model):
-    __tablename__ = 'customers'
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(50), nullable=False)
-    last_name = db.Column(db.String(50), nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(100), nullable=False)
-    phone_number = db.Column(db.String(20))
-
-class court(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    court_name = db.Column(db.String(50), nullable=False)
-
-class Reservations(db.Model):
-    __tablename__ = 'reservations'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    date = db.Column(db.Date, nullable=False)
-    court_name = db.Column(db.String(50), nullable=False)
-    reservation_time = db.Column(db.DateTime, nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=False)
-    
-class time(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    time_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=False)
-    times = db.Column(db.String(20), db.ForeignKey('times.id'), nullable=False)
- 
-with app.app_context():
-    db.create_all()
-    
 @app.route("/make_reservation", methods=["POST"])
 def make_reservation():
-    # Tarkista, onko käyttäjä kirjautunut sisään
     user_id = session.get('user_id')
     if user_id is None:
-        # Ohjaa käyttäjä kirjautumissivulle
         return redirect(url_for("login"))
     
     if "date" in request.form and "time" in request.form and "court_id" in request.form:
         date_str = request.form["date"]
         time_str = request.form["time"]
         court_id = request.form["court_id"]
-
-        # Combine date and time to create a datetime object
         reservation_datetime = datetime.strptime(date_str + " " + time_str, "%Y-%m-%d %H:%M")
-
-        # Retrieve user ID from session
         user_id = session.get('user_id')
 
         if user_id:
-            new_reservation = Reservations(
-                customer_id=user_id,
-                court_name=court_id,
-                date=reservation_datetime.date(),  # Lisätään varauksen päivämäärä
-                reservation_time=reservation_datetime.strftime("%H:%M")  # Muunna aika merkkijonoksi
-            )
+            conn = db_connection()
+            cur = conn.cursor()
+            cur.execute("INSERT INTO reservations (customer_id, court_name, date, reservation_time) VALUES (%s, %s, %s, %s)",
+                        (user_id, court_id, reservation_datetime.date(), reservation_datetime.strftime("%H:%M")))
+            conn.commit()
+            cur.close()
+            conn.close()
 
-            db.session.add(new_reservation)
-            db.session.commit()
             flash("Varaus tehty onnistuneesti!", "success")
-            print("User ID:", user_id)
             return redirect(url_for("reservationDone"))
 
     return redirect(url_for("courts"))
@@ -77,7 +45,13 @@ def make_reservation():
 def edit_customer_info():
     user_id = session.get('user_id')
     if user_id:
-        customer = Customer.query.get(int(user_id))
+        conn = db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM customers WHERE id = %s", (user_id,))
+        customer = cur.fetchone()
+        cur.close()
+        conn.close()
+
         if customer:
             return render_template("edit.html", user=customer)
         else:
@@ -89,58 +63,45 @@ def edit_customer_info():
 def update_customer_info():
     user_id = session.get('user_id')
     if user_id:
-        customer = Customer.query.get(int(user_id))
-        if customer:
-            # Päivitä käyttäjän tiedot tietokantaan
-            customer.first_name = request.form["first_name"]
-            customer.last_name = request.form["last_name"]
-            customer.email = request.form["email"]
-            customer.phone_number = request.form["phone_number"]
-            
-            try:
-                db.session.commit()
-                flash("Tiedot päivitetty onnistuneesti!", "success")
-            except Exception as e:
-                flash("Virhe päivittäessä tietoja: " + str(e), "error")
-
-            return redirect(url_for("customer_information"))
-        else:
-            return "Käyttäjää ei löytynyt tietokannasta"
+        conn = db_connection()
+        cur = conn.cursor()
+        cur.execute("UPDATE customers SET first_name=%s, last_name=%s, email=%s, phone_number=%s WHERE id=%s",
+                    (request.form["first_name"], request.form["last_name"], request.form["email"], request.form["phone_number"], user_id))
+        conn.commit()
+        cur.close()
+        conn.close()
+        flash("Tiedot päivitetty onnistuneesti!", "success")
+        return redirect(url_for("customer_information"))
     else:
         return redirect(url_for("login"))
     
 @app.route("/delete_reservation")
 def delete_reservation():
-    # Tarkista, onko käyttäjä kirjautunut sisään
     user_id = session.get('user_id')
     if user_id:
-        # Hae käyttäjän varaukset tietokannasta
-        customer = Customer.query.get(int(user_id))
-        if customer:
-            reservations = Reservations.query.filter_by(customer_id=customer.id).all()
-            return render_template("delete_reservation.html", reservations=reservations)
-        else:
-            return "Käyttäjää ei löytynyt tietokannasta"
+        conn = db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM reservations WHERE customer_id = %s", (user_id,))
+        reservations = cur.fetchall()
+        cur.close()
+        conn.close()
+        return render_template("delete_reservation.html", reservations=reservations)
     else:
         return redirect(url_for("login"))
     
 @app.route("/deleted_reservation", methods=["POST"])
 def deleted_reservation():
-    # Tarkista, onko käyttäjä kirjautunut sisään
     user_id = session.get('user_id')
     if user_id:
-        # Hae varauksen ID lomakkeesta
         reservation_id = request.form.get("reservation")
         if reservation_id:
-            # Etsi varaus tietokannasta
-            reservation = Reservations.query.get(reservation_id)
-            if reservation:
-                # Poista varaus tietokannasta
-                db.session.delete(reservation)
-                db.session.commit()
-                flash("Varaus poistettu onnistuneesti.", "success")
-            else:
-                flash("Varausta ei löytynyt.", "error")
+            conn = db_connection()
+            cur = conn.cursor()
+            cur.execute("DELETE FROM reservations WHERE id = %s AND customer_id = %s", (reservation_id, user_id))
+            conn.commit()
+            cur.close()
+            conn.close()
+            flash("Varaus poistettu onnistuneesti.", "success")
         else:
             flash("Valitse varaus poistettavaksi.", "error")
         return redirect(url_for("customer_information"))
@@ -155,36 +116,40 @@ def result():
     if all(key in request.form for key in ["email", "password"]):
         email = request.form["email"]
         password = request.form["password"]
-        customer = Customer.query.filter_by(email=email).first()
+        
+        conn = db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT id, password FROM customers WHERE email = %s", (email,))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
 
-        if customer:
-            if check_password_hash(customer.password, password):
-                session['user_id'] = customer.id
+        if result:
+            customer_id, hashed_password = result
+            if check_password_hash(hashed_password, password):
+                session['user_id'] = customer_id
                 return redirect(url_for("customer_information"))
             else:
                 return redirect(url_for("login"))
+        else:
+            return redirect(url_for("login"))
 
-    
 @app.route("/register", methods=["POST"])
 def register():
 
     if all(key in request.form for key in ["first_name", "last_name", "password", "email", "phone_number"]):
         hashed_password = generate_password_hash(request.form["password"])
 
-        new_customer = Customer(
-            first_name=request.form["first_name"],
-            last_name=request.form["last_name"],
-            password=hashed_password,
-            email=request.form["email"],
-            phone_number=request.form["phone_number"]
-        )
-        
-        try:
-            db.session.add(new_customer)
-            db.session.commit()
-            return redirect(url_for("front_page"))
-        except Exception as e:
-            return "Virhe tietokannassa"
+        conn = db_connection()
+        cur = conn.cursor()
+        cur.execute("INSERT INTO customers (first_name, last_name, password, email, phone_number) VALUES (%s, %s, %s, %s, %s)",
+                    (request.form["first_name"], request.form["last_name"], hashed_password, request.form["email"], request.form["phone_number"]))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return redirect(url_for("front_page"))
+    else:
+        return "Virhe tietokannassa"
 
 @app.route("/")
 def front_page():
@@ -194,9 +159,16 @@ def front_page():
 def customer_information():
     user_id = session.get('user_id')
     if user_id:
-        customer = Customer.query.get(int(user_id))
+        conn = db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM customers WHERE id = %s", (user_id,))
+        customer = cur.fetchone()
+        cur.execute("SELECT * FROM reservations WHERE customer_id = %s", (user_id,))
+        reservations = cur.fetchall()
+        cur.close()
+        conn.close()
+
         if customer:
-            reservations = Reservations.query.filter_by(customer_id=customer.id).all()
             return render_template("user_information.html", user=customer, reservations=reservations)
         else:
             return "Käyttäjää ei löytynyt tietokannasta"
@@ -227,6 +199,3 @@ def create_account():
 @app.route('/reservationDone')
 def reservationDone():
     return render_template('reservationDone.html')
-
-if __name__ == "__main__":
-    app.run(debug=True)

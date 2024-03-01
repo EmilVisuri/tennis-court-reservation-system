@@ -15,7 +15,7 @@ Tenniskenttien varausjärjestelmä, jossa asiakkaat voivat selailla eri vuoroja,
 6. Asenna sovelluksen riippuvuudet:
    pip install -r requirements.txt
 7. Määritä vielä tietokannan skeema:
-   psql < schema.sql
+   psql < skeema.sql
 8. käynnistää sovellus:
    flask run
 
@@ -31,7 +31,7 @@ Tenniskenttien varausjärjestelmä, jossa asiakkaat voivat selailla eri vuoroja,
 6. Asenna sovelluksen riippuvuudet:
    pip install -r requirements.txt
 7. Määritä vielä tietokannan skeema:
-   psql < schema.sql
+   psql < skeema.sql
 8. käynnistää sovellus:
    flask run
 

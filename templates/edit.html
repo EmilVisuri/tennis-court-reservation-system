@@ -1,12 +1,13 @@
 {% extends 'index.html' %}
+
 {% block welcome_message %}
 {% endblock %}
+
 {% block content %}
-
-
 <body style="text-align: center;">
     <h1>Muokkaa omia tietojasi:</h1>
     <form action="/update_customer_info" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
         <label for="first_name">Etunimi:</label>
         <input type="text" id="first_name" name="first_name" value="{{ user[1] }}"><br><br>
         <label for="last_name">Sukunimi:</label>
@@ -18,5 +19,4 @@
         <input type="submit" value="Tallenna">
     </form>
 </body>
-
 {% endblock %}

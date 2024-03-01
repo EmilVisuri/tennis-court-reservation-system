@@ -30,7 +30,8 @@
     {% else %}
         <p style="font-size: 1.2em;">Ei varauksia</p>
     {% endif %}
-    <form style="text-align: center; margin-bottom: 10px;" action="/delete_reservation" method="GET">
+    <form style="text-align: center; margin-bottom: 10px;" action="/delete_reservation" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="submit" value="Poista varauksia">
     </form>
 </div>

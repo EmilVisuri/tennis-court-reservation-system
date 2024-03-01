@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import check_password_hash, generate_password_hash
+from flask_wtf.csrf import CSRFProtect
 import psycopg2
 from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'salainen_avain_123'
+csrf = CSRFProtect(app)
 
 def db_connection():
     return psycopg2.connect(

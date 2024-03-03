@@ -33,7 +33,7 @@
 <p style="font-size: 25px; text-align: center">Täytä tietosi:</p>
 
 <form action="/result" method="POST">
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label for="email">Sähköposti:</label>
     <input type="text" name="email" id="email">
     

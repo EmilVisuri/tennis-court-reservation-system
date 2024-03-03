@@ -32,7 +32,7 @@
 <p style="font-size: 25px; text-align: center">Täytä tietosi:</p>
 
 <form action="/register" method="POST">
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label for="first_name">Etunimi:</label>
     <input type="text" name="first_name" id="first_name">
 

@@ -8,7 +8,7 @@
     <h1>Valitse poistettava varaus:</h1>
     
     <form action="/deleted_reservation" method="POST">
-        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="reservation">Valitse varaus:</label>
         <select name="reservation" id="reservation">
             {% if reservations %}

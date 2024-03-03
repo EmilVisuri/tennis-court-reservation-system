@@ -77,7 +77,7 @@ def update_customer_info():
     else:
         return redirect(url_for("login"))
     
-@app.route("/delete_reservation")
+@app.route("/delete_reservation", methods=["GET", "POST"])
 def delete_reservation():
     user_id = session.get('user_id')
     if user_id:
@@ -87,7 +87,23 @@ def delete_reservation():
         reservations = cur.fetchall()
         cur.close()
         conn.close()
-        return render_template("delete_reservation.html", reservations=reservations)
+
+        if request.method == "POST":
+            reservation_id = request.form.get("reservation")
+            if reservation_id:
+                conn = db_connection()
+                cur = conn.cursor()
+                cur.execute("DELETE FROM reservations WHERE id = %s AND customer_id = %s", (reservation_id, user_id))
+                conn.commit()
+                cur.close()
+                conn.close()
+                flash("Varaus poistettu onnistuneesti.", "success")
+                return redirect(url_for("customer_information"))
+            else:
+                flash("Valitse varaus poistettavaksi.", "error")
+                return redirect(url_for("delete_reservation"))
+        else:
+            return render_template("delete_reservation.html", reservations=reservations)
     else:
         return redirect(url_for("login"))
     
